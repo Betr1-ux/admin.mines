@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KING ADMIN - تسجيل دخول</title>
+<style>
+  body {
+    background: black;
+    color: #00ff6a;
+    font-family: monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  /* شاشة التحميل */
+  #loadingScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: black;
+  }
+  #loadingText {
+    font-size: 28px;
+    font-weight: bold;
+    color: #00ff6a;
+  }
+  .progress-bar {
+    width: 80%;
+    height: 8px;
+    background: #333;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+  .progress {
+    height: 100%;
+    background: #00ff6a;
+    width: 0%;
+    transition: width 0.2s;
+  }
+
+  /* واجهة التسجيل و الرئيسية */
+  .login, .main {
+    background: #111;
+    padding: 20px;
+    border: 1px solid #00ff6a;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+  }
+  input {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    background: black;
+    color: #00ff6a;
+    border: 1px solid #00ff6a;
+  }
+  button {
+    padding: 10px 20px;
+    background: #00ff6a;
+    color: black;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px;
+  }
+  pre {
+    background: black;
+    padding: 10px;
+    border: 1px solid #00ff6a;
+    min-height: 120px;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+
+<!-- شاشة التحميل -->
+<div id="loadingScreen">
+  <div id="loadingText">KING ADMIN</div>
+  <div class="progress-bar">
+    <div class="progress" id="progressBar"></div>
+  </div>
+</div>
+
+<!-- واجهة تسجيل الدخول -->
+<div class="login" id="loginBox">
+  <h2>تسجيل دخول</h2>
+  <input type="text" id="userId" placeholder="ID">
+  <input type="text" id="code" placeholder="كود">
+  <button onclick="login()">تسجيل الدخول</button>
+</div>
+
+<!-- الواجهة الرئيسية -->
+<div class="main" id="mainBox">
+  <h2>الشبكة</h2>
+  <pre id="grid"></pre>
+  <button onclick="generateGrid()">توليد</button>
+  <button onclick="copyGrid()">نسخ</button>
+</div>
+
+<script>
+  const correctCode = "XZQ-6755-BVVC1-3EUQR-DFUX2025HAKINGX";
+  const gem = "💎";
+  const block = "🟦";
+
+  // تحميل وهمي 10 ثواني
+  let progress = 0;
+  let progressInterval = setInterval(() => {
+    progress += 1; // 1% كل 100ms = 10 ثواني
+    document.getElementById("progressBar").style.width = progress + "%";
+    if (progress >= 100) {
+      clearInterval(progressInterval);
+      document.getElementById("loadingScreen").style.display = "none";
+      document.getElementById("loginBox").style.display = "block";
+    }
+  }, 100);
+
+  function login() {
+    const codeInput = document.getElementById("code").value.trim();
+    if (codeInput === correctCode) {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("mainBox").style.display = "block";
+      generateGrid();
+    } else {
+      alert("@fa2test كود خطأ، تواصل مع المطور.");
+    }
+  }
+
+  function generateGrid() {
+    let totalCells = 25;
+    let gemCount = Math.floor(Math.random() * 2) + 4; // 4 أو 5 جواهر
+    let gridArray = Array(totalCells).fill(block);
+
+    for (let i = 0; i < gemCount; i++) {
+      let index;
+      do {
+        index = Math.floor(Math.random() * totalCells);
+      } while (gridArray[index] === gem);
+      gridArray[index] = gem;
+    }
+
+    let gridText = "";
+    for (let i = 0; i < 5; i++) {
+      gridText += gridArray.slice(i * 5, (i + 1) * 5).join(" ") + "\n";
+    }
+
+    document.getElementById("grid").textContent = gridText.trim();
+  }
+
+  function copyGrid() {
+    const grid = document.getElementById("grid").textContent;
+    navigator.clipboard.writeText(grid).then(() => {
+      alert("تم نسخ الشبكة!");
+    });
+  }
+</script>
+
+</body>
+</html>
