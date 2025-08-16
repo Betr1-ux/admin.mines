@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KING ADMIN - تسجيل دخول</title>
+<title>KING ADMIN - Login</title>
 <style>
   body {
     background: black;
-    color: #00ff6a;
-    font-family: monospace;
+    font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,63 +15,76 @@
     margin: 0;
   }
 
-  /* شاشة التحميل */
-  #loadingScreen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: black;
-  }
-  #loadingText {
-    font-size: 28px;
-    font-weight: bold;
-    color: #00ff6a;
-  }
-  .progress-bar {
-    width: 80%;
-    height: 8px;
-    background: #333;
-    border-radius: 5px;
-    overflow: hidden;
-    margin-top: 20px;
-  }
-  .progress {
-    height: 100%;
-    background: #00ff6a;
-    width: 0%;
-    transition: width 0.2s;
+  /* صندوق تسجيل الدخول */
+  .login {
+    background: #000;
+    padding: 20px;
+    border: 2px solid #00ff6a;
+    border-radius: 15px;
+    text-align: center;
+    width: 280px;
+    box-shadow: 0 0 15px #00ff6a50;
   }
 
-  /* واجهة التسجيل و الرئيسية */
-  .login, .main {
-    background: #111;
-    padding: 20px;
-    border: 1px solid #00ff6a;
-    border-radius: 10px;
-    text-align: center;
-    display: none;
+  /* مهم: علشان العرض يبقى مظبوط وما يميلش لليمين */
+  .login * { box-sizing: border-box; }
+
+  .login h2 {
+    color: white;
+    margin-bottom: 15px;
   }
-  input {
-    display: block;
+
+  .login input {
     width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    background: black;
-    color: #00ff6a;
-    border: 1px solid #00ff6a;
-  }
-  button {
-    padding: 10px 20px;
-    background: #00ff6a;
-    color: black;
+    padding: 10px;
+    margin: 0 auto 8px;   /* في النص */
+    background: #444;
     border: none;
-    cursor: pointer;
+    border-radius: 12px;
+    color: white;
+    text-align: center;    /* الكتابة في النص */
+    font-size: 16px;
+    display: block;        /* يضمن التوسيط */
+  }
+
+  .error {
+    color: red;
+    font-size: 16px;
     font-weight: bold;
-    margin: 5px;
+    margin-bottom: 10px;
+    display: none;
+    text-align: center;
+  }
+
+  .login button {
+    width: 100%;
+    padding: 12px;
+    background: #00c853;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;        /* مع box-sizing أعلاه يبقى مضبوط */
+    margin: 0 auto;
+  }
+  .login button:hover { background: #00e676; }
+
+  .cart {
+    margin-top: 15px;
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    display: block;
+    margin: 12px auto 0;
+    text-align: center;
+  }
+
+  .main {
+    display: none;
+    text-align: center;
+    color: #00ff6a;
   }
   pre {
     background: black;
@@ -81,23 +93,27 @@
     min-height: 120px;
     text-align: left;
   }
+  .main button {
+    padding: 10px 20px;
+    background: #00ff6a;
+    color: black;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px;
+    border-radius: 8px;
+  }
 </style>
 </head>
 <body>
 
-<!-- شاشة التحميل -->
-<div id="loadingScreen">
-  <div id="loadingText">KING ADMIN</div>
-  <div class="progress-bar">
-    <div class="progress" id="progressBar"></div>
-  </div>
-</div>
-
 <!-- واجهة تسجيل الدخول -->
 <div class="login" id="loginBox">
-  <h2>تسجيل دخول</h2>
-  <input type="text" id="code" placeholder="كود">
-  <button onclick="login()">تسجيل الدخول</button>
+  <h2>Log in</h2>
+  <input type="text" id="code" placeholder="code">
+  <div id="errorMsg" class="error">كود خطأ، تواصل مع المطور</div>
+  <button onclick="login()">Activate</button>
+  <div class="cart" onclick="openTelegram()">🛒</div>
 </div>
 
 <!-- الواجهة الرئيسية -->
@@ -113,26 +129,17 @@
   const gem = "💎";
   const block = "🟦";
 
-  // تحميل وهمي 10 ثواني
-  let progress = 0;
-  let progressInterval = setInterval(() => {
-    progress += 1; // 1% كل 100ms = 10 ثواني
-    document.getElementById("progressBar").style.width = progress + "%";
-    if (progress >= 100) {
-      clearInterval(progressInterval);
-      document.getElementById("loadingScreen").style.display = "none";
-      document.getElementById("loginBox").style.display = "block";
-    }
-  }, 100);
-
   function login() {
     const codeInput = document.getElementById("code").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
     if (codeInput === correctCode) {
+      errorMsg.style.display = "none";
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("mainBox").style.display = "block";
       generateGrid();
     } else {
-      alert("@nbvvte كود خطأ، تواصل مع المطور.");
+      errorMsg.style.display = "block";
     }
   }
 
@@ -163,7 +170,11 @@
       alert("تم نسخ الشبكة!");
     });
   }
+
+  function openTelegram() {
+    window.open("https://t.me/nbvvte", "_blank");
+  }
 </script>
 
 </body>
-</html>
+  </html>
