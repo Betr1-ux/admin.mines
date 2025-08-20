@@ -1,113 +1,183 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KING ADMIN - Login</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KING GAME</title>
 <style>
-  body {
-    background: black;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+  :root{
+    --neon:#00ff6a;
+    --bg:#000;
+    --card:#000;
+    --input:#3a3a3a;
+    --btn:#06c755;
   }
-  .login {
-    background: #000;
-    padding: 20px;
-    border: 2px solid #00ff6a;
-    border-radius: 15px;
-    text-align: center;
-    width: 280px;
-    box-shadow: 0 0 15px #00ff6a50;
+  *{box-sizing:border-box}
+  body{
+    margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
+    background: radial-gradient(ellipse at center, #020202 0%, #000 60%, #000 100%);
+    font-family: Arial, Helvetica, sans-serif;
   }
-  .login * { box-sizing: border-box; }
-  .login h2 { color: white; margin-bottom: 15px; }
-  .login input {
-    width: 100%; padding: 10px; margin: 0 auto 8px;
-    background: #444; border: none; border-radius: 12px;
-    color: white; text-align: center; font-size: 16px; display: block;
+  .card{
+    position:relative;
+    width:min(92vw,360px);
+    background:var(--card);
+    border-radius:20px;
+    padding:26px 22px 18px;
+    border:2px solid var(--neon);
+    box-shadow:
+      0 0 18px rgba(0,255,106,.55),
+      0 0 44px rgba(0,255,106,.25),
+      inset 0 0 0 rgba(0,0,0,0);
   }
-  .error { color: red; font-size: 16px; font-weight: bold; margin-bottom: 10px; display: none; text-align: center; }
-  .login button {
-    width: 100%; padding: 12px; background: #00c853; color: white; border: none; border-radius: 12px;
-    font-size: 16px; font-weight: bold; cursor: pointer; display: block; margin: 0 auto;
+  .title{
+    color:#fff;text-align:center;margin:0 0 16px;font-size:28px;font-weight:700;
+    letter-spacing:.3px;
   }
-  .login button:hover { background: #00e676; }
-  .cart { margin-top: 15px; font-size: 28px; color: white; cursor: pointer; display: block; margin: 12px auto 0; text-align: center; }
-  .main { display: none; text-align: center; color: #00ff6a; }
-  pre { background: black; padding: 10px; border: 1px solid #00ff6a; min-height: 120px; text-align: left; }
-  .main button { padding: 10px 20px; background: #00ff6a; color: black; border: none; cursor: pointer; font-weight: bold; margin: 5px; border-radius: 8px; }
+  .input{
+    width:100%;height:48px;border:none;border-radius:14px;
+    background:var(--input);color:#fff;font-size:16px;text-align:center;
+    outline:none;margin-bottom:10px;
+  }
+  .error{
+    display:none;color:#ff3b30;font-weight:700;text-align:center;margin:-2px 0 10px;
+  }
+  .btn{
+    width:100%;height:52px;border:none;border-radius:14px;cursor:pointer;
+    background:var(--btn);color:#fff;font-size:18px;font-weight:800;
+    transition:transform .08s ease, box-shadow .2s;
+    box-shadow:0 6px 18px rgba(6,199,85,.35);
+  }
+  .btn:active{ transform:scale(.98) }
+  .btn:hover{ box-shadow:0 10px 26px rgba(6,199,85,.45) }
+  .tools{
+    display:flex;justify-content:center;align-items:center;gap:10px;margin-top:14px;
+  }
+  .cart{
+    width:34px;height:34px;cursor:pointer;opacity:.9;transition:transform .12s ease, opacity .2s;
+    display:inline-block;
+  }
+  .cart:hover{ transform:translateY(-1px) scale(1.03); opacity:1 }
+  .hidden{display:none}
+  .main{ text-align:center; color:var(--neon) }
+  pre{
+    background:#000;border:1px solid var(--neon);border-radius:10px;
+    padding:12px;min-height:120px;text-align:left;white-space:pre-wrap;
+    box-shadow:0 0 12px rgba(0,255,106,.2) inset; color:#d1ffd1;
+  }
+  .gbtn{
+    padding:10px 18px;margin:6px;border:none;border-radius:10px;cursor:pointer;
+    background:var(--neon);color:#000;font-weight:800;
+  }
 </style>
 </head>
 <body>
 
-<div class="login" id="loginBox">
-  <h2>Log in</h2>
-  <input type="text" id="code" placeholder="code">
-  <div id="errorMsg" class="error">كود خطأ، تواصل مع المطور</div>
-  <button onclick="login()">Activate</button>
-  <div class="cart" onclick="openTelegram()">🛒</div>
+<!-- Login Card -->
+<div id="loginBox" class="card">
+  <h1 class="title">Log in</h1>
+  <input id="code" class="input" type="text" placeholder="code" autocomplete="one-time-code" />
+  <div id="errorMsg" class="error">كود خطأ أو انتهى</div>
+  <button class="btn" onclick="login()">Activate</button>
+
+  <!-- cart button under card -->
+  <div class="tools">
+    <span class="cart" title="تواصل على تيليجرام" onclick="openTelegram()">
+      <!-- SVG cart (أبيض مع عجلات حمراء مثل المعاينة) -->
+      <svg viewBox="0 0 64 64" width="100%" height="100%">
+        <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="23" cy="52" r="4" fill="#d63737"></circle>
+          <circle cx="47" cy="52" r="4" fill="#d63737"></circle>
+          <path d="M6 10h8l6 30h28l5-20H17"></path>
+          <path d="M22 40h27"></path>
+        </g>
+      </svg>
+    </span>
+  </div>
 </div>
 
-<div class="main" id="mainBox">
-  <h2>الشبكة</h2>
-  <pre id="grid"></pre>
-  <button onclick="generateGrid()">توليد</button>
-  <button onclick="copyGrid()">نسخ</button>
+<!-- Main/Game -->
+<div id="mainBox" class="hidden">
+  <div class="card" style="padding-top:18px">
+    <h2 class="title" style="font-size:24px;margin-bottom:12px">الشبكة</h2>
+    <pre id="grid"></pre>
+    <button class="gbtn" onclick="generateGrid()">توليد</button>
+    <button class="gbtn" onclick="copyGrid()">نسخ</button>
+  </div>
 </div>
 
-<script>
-const STORAGE_KEY = "codes_storage_v1";
-const gem = "💎";
-const block = "🟦";
+<script type="module">
+  /* Firebase v9 (modules) */
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
-function loadData(){
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-}
-function saveData(data){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+  const firebaseConfig = {
+    apiKey: "AIzaSyAF1K59iKFsVH-wyAKyGw2wsIMUIrT9WMg",
+    authDomain: "admin-3fd30.firebaseapp.com",
+    databaseURL: "https://admin-3fd30-default-rtdb.firebaseio.com",
+    projectId: "admin-3fd30",
+    storageBucket: "admin-3fd30.firebasestorage.app",
+    messagingSenderId: "981773176798",
+    appId: "1:981773176798:web:1ebc106e60af04ed8a174f",
+    measurementId: "G-35L6036ED8"
+  };
 
-function login() {
-  const codeInput = document.getElementById("code").value.trim();
-  const errorMsg = document.getElementById("errorMsg");
-  let data = loadData();
-  const idx = data.findIndex(c=>c.code===codeInput && c.remaining>0);
-  if(idx>=0){
-    data[idx].remaining -= 1;
-    saveData(data);
-    errorMsg.style.display="none";
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("mainBox").style.display="block";
-    generateGrid();
-  } else {
-    errorMsg.style.display="block";
-  }
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-function generateGrid() {
-  let totalCells = 25;
-  let gemCount = Math.floor(Math.random() * 2) + 4; 
-  let gridArray = Array(totalCells).fill(block);
-  for (let i = 0; i < gemCount; i++) {
-    let index;
-    do { index = Math.floor(Math.random() * totalCells); } while (gridArray[index] === gem);
-    gridArray[index] = gem;
-  }
-  let gridText = "";
-  for (let i = 0; i < 5; i++) {
-    gridText += gridArray.slice(i*5,(i+1)*5).join(" ") + "\n";
-  }
-  document.getElementById("grid").textContent = gridText.trim();
-}
-function copyGrid(){
-  const grid=document.getElementById("grid").textContent;
-  navigator.clipboard.writeText(grid).then(()=>{ alert("تم نسخ الشبكة!"); });
-}
-function openTelegram(){ window.open("https://t.me/nbvvte","_blank"); }
+  const gem = "💎";
+  const block = "🟦";
+
+  /* Telegram link */
+  window.openTelegram = () => {
+    window.open("https://t.me/nbvvte", "_blank");
+  };
+
+  /* Login */
+  window.login = async () => {
+    const codeInput = document.getElementById("code").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    try {
+      const snap = await get(ref(db, "codes/" + codeInput));
+      if (!snap.exists()) throw new Error("invalid");
+
+      const data = snap.val();
+      if ((data.remaining ?? 0) <= 0) throw new Error("exhausted");
+
+      await update(ref(db, "codes/" + codeInput), { remaining: (data.remaining || 0) - 1 });
+
+      errorMsg.style.display = "none";
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("mainBox").classList.remove("hidden");
+      generateGrid();
+    } catch(e){
+      errorMsg.style.display = "block";
+    }
+  };
+
+  /* Grid */
+  window.generateGrid = () => {
+    const total = 25;
+    const gemCount = Math.floor(Math.random()*2)+4; // 4..5
+    const arr = Array(total).fill(block);
+    let placed = 0;
+    while(placed < gemCount){
+      const i = Math.floor(Math.random()*total);
+      if(arr[i] !== gem){ arr[i] = gem; placed++; }
+    }
+    let text = "";
+    for(let r=0;r<5;r++){
+      text += arr.slice(r*5,(r+1)*5).join(" ") + (r<4? "\n":"");
+    }
+    document.getElementById("grid").textContent = text;
+  };
+
+  window.copyGrid = () => {
+    const t = document.getElementById("grid").textContent.trim();
+    if(!t) return;
+    navigator.clipboard.writeText(t).then(()=> alert("تم النسخ ✅"));
+  };
 </script>
 </body>
 </html>
