@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,8 +14,6 @@
     height: 100vh;
     margin: 0;
   }
-
-  /* صندوق تسجيل الدخول */
   .login {
     background: #000;
     padding: 20px;
@@ -25,89 +23,27 @@
     width: 280px;
     box-shadow: 0 0 15px #00ff6a50;
   }
-
-  /* مهم: علشان العرض يبقى مظبوط وما يميلش لليمين */
   .login * { box-sizing: border-box; }
-
-  .login h2 {
-    color: white;
-    margin-bottom: 15px;
-  }
-
+  .login h2 { color: white; margin-bottom: 15px; }
   .login input {
-    width: 100%;
-    padding: 10px;
-    margin: 0 auto 8px;   /* في النص */
-    background: #444;
-    border: none;
-    border-radius: 12px;
-    color: white;
-    text-align: center;    /* الكتابة في النص */
-    font-size: 16px;
-    display: block;        /* يضمن التوسيط */
+    width: 100%; padding: 10px; margin: 0 auto 8px;
+    background: #444; border: none; border-radius: 12px;
+    color: white; text-align: center; font-size: 16px; display: block;
   }
-
-  .error {
-    color: red;
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    display: none;
-    text-align: center;
-  }
-
+  .error { color: red; font-size: 16px; font-weight: bold; margin-bottom: 10px; display: none; text-align: center; }
   .login button {
-    width: 100%;
-    padding: 12px;
-    background: #00c853;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    display: block;        /* مع box-sizing أعلاه يبقى مضبوط */
-    margin: 0 auto;
+    width: 100%; padding: 12px; background: #00c853; color: white; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: bold; cursor: pointer; display: block; margin: 0 auto;
   }
   .login button:hover { background: #00e676; }
-
-  .cart {
-    margin-top: 15px;
-    font-size: 28px;
-    color: white;
-    cursor: pointer;
-    display: block;
-    margin: 12px auto 0;
-    text-align: center;
-  }
-
-  .main {
-    display: none;
-    text-align: center;
-    color: #00ff6a;
-  }
-  pre {
-    background: black;
-    padding: 10px;
-    border: 1px solid #00ff6a;
-    min-height: 120px;
-    text-align: left;
-  }
-  .main button {
-    padding: 10px 20px;
-    background: #00ff6a;
-    color: black;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    margin: 5px;
-    border-radius: 8px;
-  }
+  .cart { margin-top: 15px; font-size: 28px; color: white; cursor: pointer; display: block; margin: 12px auto 0; text-align: center; }
+  .main { display: none; text-align: center; color: #00ff6a; }
+  pre { background: black; padding: 10px; border: 1px solid #00ff6a; min-height: 120px; text-align: left; }
+  .main button { padding: 10px 20px; background: #00ff6a; color: black; border: none; cursor: pointer; font-weight: bold; margin: 5px; border-radius: 8px; }
 </style>
 </head>
 <body>
 
-<!-- واجهة تسجيل الدخول -->
 <div class="login" id="loginBox">
   <h2>Log in</h2>
   <input type="text" id="code" placeholder="code">
@@ -116,7 +52,6 @@
   <div class="cart" onclick="openTelegram()">🛒</div>
 </div>
 
-<!-- الواجهة الرئيسية -->
 <div class="main" id="mainBox">
   <h2>الشبكة</h2>
   <pre id="grid"></pre>
@@ -125,56 +60,54 @@
 </div>
 
 <script>
-  const correctCode = "XZQ-6755-BVVC1-3EUQR-DFUX2025HAKINGX";
-  const gem = "💎";
-  const block = "🟦";
+const STORAGE_KEY = "codes_storage_v1";
+const gem = "💎";
+const block = "🟦";
 
-  function login() {
-    const codeInput = document.getElementById("code").value.trim();
-    const errorMsg = document.getElementById("errorMsg");
+function loadData(){
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+}
+function saveData(data){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
 
-    if (codeInput === correctCode) {
-      errorMsg.style.display = "none";
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("mainBox").style.display = "block";
-      generateGrid();
-    } else {
-      errorMsg.style.display = "block";
-    }
+function login() {
+  const codeInput = document.getElementById("code").value.trim();
+  const errorMsg = document.getElementById("errorMsg");
+  let data = loadData();
+  const idx = data.findIndex(c=>c.code===codeInput && c.remaining>0);
+  if(idx>=0){
+    data[idx].remaining -= 1;
+    saveData(data);
+    errorMsg.style.display="none";
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("mainBox").style.display="block";
+    generateGrid();
+  } else {
+    errorMsg.style.display="block";
   }
+}
 
-  function generateGrid() {
-    let totalCells = 25;
-    let gemCount = Math.floor(Math.random() * 2) + 4; // 4 أو 5 جواهر
-    let gridArray = Array(totalCells).fill(block);
-
-    for (let i = 0; i < gemCount; i++) {
-      let index;
-      do {
-        index = Math.floor(Math.random() * totalCells);
-      } while (gridArray[index] === gem);
-      gridArray[index] = gem;
-    }
-
-    let gridText = "";
-    for (let i = 0; i < 5; i++) {
-      gridText += gridArray.slice(i * 5, (i + 1) * 5).join(" ") + "\n";
-    }
-
-    document.getElementById("grid").textContent = gridText.trim();
+function generateGrid() {
+  let totalCells = 25;
+  let gemCount = Math.floor(Math.random() * 2) + 4; 
+  let gridArray = Array(totalCells).fill(block);
+  for (let i = 0; i < gemCount; i++) {
+    let index;
+    do { index = Math.floor(Math.random() * totalCells); } while (gridArray[index] === gem);
+    gridArray[index] = gem;
   }
-
-  function copyGrid() {
-    const grid = document.getElementById("grid").textContent;
-    navigator.clipboard.writeText(grid).then(() => {
-      alert("تم نسخ الشبكة!");
-    });
+  let gridText = "";
+  for (let i = 0; i < 5; i++) {
+    gridText += gridArray.slice(i*5,(i+1)*5).join(" ") + "\n";
   }
-
-  function openTelegram() {
-    window.open("https://t.me/nbvvte", "_blank");
-  }
+  document.getElementById("grid").textContent = gridText.trim();
+}
+function copyGrid(){
+  const grid=document.getElementById("grid").textContent;
+  navigator.clipboard.writeText(grid).then(()=>{ alert("تم نسخ الشبكة!"); });
+}
+function openTelegram(){ window.open("https://t.me/nbvvte","_blank"); }
 </script>
-
 </body>
-  </html>
+</html>
