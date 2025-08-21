@@ -76,14 +76,14 @@
 <!-- Login Card -->
 <div id="loginBox" class="card">
   <h1 class="title">Log in</h1>
-  <input id="code" class="input" type="text" placeholder="code" autocomplete="one-time-code" />
+  <input id="userId" class="input" type="text" placeholder="ID" />
+  <input id="code" class="input" type="text" placeholder="Code" autocomplete="one-time-code" />
   <div id="errorMsg" class="error">كود خطأ أو انتهى</div>
   <button class="btn" onclick="login()">Activate</button>
 
   <!-- cart button under card -->
   <div class="tools">
     <span class="cart" title="تواصل على تيليجرام" onclick="openTelegram()">
-      <!-- SVG cart (أبيض مع عجلات حمراء مثل المعاينة) -->
       <svg viewBox="0 0 64 64" width="100%" height="100%">
         <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="23" cy="52" r="4" fill="#d63737"></circle>
@@ -107,7 +107,6 @@
 </div>
 
 <script type="module">
-  /* Firebase v9 (modules) */
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
@@ -128,15 +127,20 @@
   const gem = "💎";
   const block = "🟦";
 
-  /* Telegram link */
   window.openTelegram = () => {
     window.open("https://t.me/nbvvte", "_blank");
   };
 
-  /* Login */
   window.login = async () => {
+    const userId = document.getElementById("userId").value.trim();
     const codeInput = document.getElementById("code").value.trim();
     const errorMsg = document.getElementById("errorMsg");
+
+    if (!userId || !codeInput) {
+      errorMsg.style.display = "block";
+      errorMsg.textContent = "ادخل الـ ID والكود";
+      return;
+    }
 
     try {
       const snap = await get(ref(db, "codes/" + codeInput));
@@ -145,7 +149,7 @@
       const data = snap.val();
       if ((data.remaining ?? 0) <= 0) throw new Error("exhausted");
 
-      await update(ref(db, "codes/" + codeInput), { remaining: (data.remaining || 0) - 1 });
+      await update(ref(db, "codes/" + codeInput), { remaining: (data.remaining || 0) - 1, user: userId });
 
       errorMsg.style.display = "none";
       document.getElementById("loginBox").classList.add("hidden");
@@ -153,13 +157,13 @@
       generateGrid();
     } catch(e){
       errorMsg.style.display = "block";
+      errorMsg.textContent = "كود خطأ أو انتهى";
     }
   };
 
-  /* Grid */
   window.generateGrid = () => {
     const total = 25;
-    const gemCount = Math.floor(Math.random()*2)+4; // 4..5
+    const gemCount = Math.floor(Math.random()*2)+4;
     const arr = Array(total).fill(block);
     let placed = 0;
     while(placed < gemCount){
