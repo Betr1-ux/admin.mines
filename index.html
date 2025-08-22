@@ -25,14 +25,11 @@
     border-radius:20px;
     padding:26px 22px 18px;
     border:2px solid var(--neon);
-    box-shadow:
-      0 0 18px rgba(0,255,106,.55),
-      0 0 44px rgba(0,255,106,.25),
-      inset 0 0 0 rgba(0,0,0,0);
+    box-shadow:0 0 18px rgba(0,255,106,.55),
+               0 0 44px rgba(0,255,106,.25);
   }
   .title{
     color:#fff;text-align:center;margin:0 0 16px;font-size:28px;font-weight:700;
-    letter-spacing:.3px;
   }
   .input{
     width:100%;height:48px;border:none;border-radius:14px;
@@ -54,20 +51,21 @@
     display:flex;justify-content:center;align-items:center;gap:10px;margin-top:14px;
   }
   .cart{
-    width:34px;height:34px;cursor:pointer;opacity:.9;transition:transform .12s ease, opacity .2s;
-    display:inline-block;
+    width:34px;height:34px;cursor:pointer;opacity:.95;transition:.2s;
   }
-  .cart:hover{ transform:translateY(-1px) scale(1.03); opacity:1 }
+  .cart:hover{ transform:scale(1.1); }
   .hidden{display:none}
-  .main{ text-align:center; color:var(--neon) }
-  pre{
-    background:#000;border:1px solid var(--neon);border-radius:10px;
-    padding:12px;min-height:120px;text-align:left;white-space:pre-wrap;
-    box-shadow:0 0 12px rgba(0,255,106,.2) inset; color:#d1ffd1;
+  #attempts{
+    color:var(--neon);
+    font-size:16px;
+    font-weight:bold;
+    margin-bottom:10px;
+    text-align:center; /* المحاولات في النص */
   }
-  .gbtn{
-    padding:10px 18px;margin:6px;border:none;border-radius:10px;cursor:pointer;
-    background:var(--neon);color:#000;font-weight:800;
+  #grid{
+    text-align:center;  /* التوقعات في النص */
+    font-size:20px;
+    line-height:1.6;
   }
 </style>
 </head>
@@ -81,16 +79,16 @@
   <div id="errorMsg" class="error">كود خطأ أو انتهى</div>
   <button class="btn" onclick="login()">Activate</button>
 
-  <!-- cart button under card -->
   <div class="tools">
     <span class="cart" title="تواصل على تيليجرام" onclick="openTelegram()">
-      <svg viewBox="0 0 64 64" width="100%" height="100%">
-        <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="23" cy="52" r="4" fill="#d63737"></circle>
-          <circle cx="47" cy="52" r="4" fill="#d63737"></circle>
-          <path d="M6 10h8l6 30h28l5-20H17"></path>
-          <path d="M22 40h27"></path>
-        </g>
+      <svg xmlns="http://www.w3.org/2000/svg" 
+           viewBox="0 0 24 24" fill="none" 
+           stroke="white" stroke-width="2" 
+           stroke-linecap="round" stroke-linejoin="round" 
+           width="34" height="34">
+        <circle cx="9" cy="21" r="2" fill="red"></circle>
+        <circle cx="20" cy="21" r="2" fill="red"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
       </svg>
     </span>
   </div>
@@ -100,9 +98,10 @@
 <div id="mainBox" class="hidden">
   <div class="card" style="padding-top:18px">
     <h2 class="title" style="font-size:24px;margin-bottom:12px">الشبكة</h2>
+    <div id="attempts">المحاولات: 0</div>
     <pre id="grid"></pre>
-    <button class="gbtn" onclick="generateGrid()">توليد</button>
-    <button class="gbtn" onclick="copyGrid()">نسخ</button>
+    <button class="btn" style="margin-top:8px" onclick="useAttempt()">توليد</button>
+    <button class="btn" style="margin-top:8px;background:#333;color:#fff" onclick="copyGrid()">نسخ</button>
   </div>
 </div>
 
@@ -126,6 +125,8 @@
 
   const gem = "💎";
   const block = "🟦";
+  let attempts = 0;
+  let currentCode = "";
 
   window.openTelegram = () => {
     window.open("https://t.me/nbvvte", "_blank");
@@ -138,7 +139,7 @@
 
     if (!userId || !codeInput) {
       errorMsg.style.display = "block";
-      errorMsg.textContent = " ID ادخل الكود و";
+      errorMsg.textContent = " ID   ادخل الكود و";
       return;
     }
 
@@ -149,19 +150,47 @@
       const data = snap.val();
       if ((data.remaining ?? 0) <= 0) throw new Error("exhausted");
 
-      await update(ref(db, "codes/" + codeInput), { remaining: (data.remaining || 0) - 1, user: userId });
+      currentCode = codeInput;
+      attempts = data.remaining;
+      await update(ref(db, "codes/" + codeInput), { user: userId });
 
       errorMsg.style.display = "none";
       document.getElementById("loginBox").classList.add("hidden");
       document.getElementById("mainBox").classList.remove("hidden");
-      generateGrid();
+      updateAttemptsUI();
     } catch(e){
       errorMsg.style.display = "block";
       errorMsg.textContent = "كود خطأ أو انتهى";
     }
   };
 
-  window.generateGrid = () => {
+  function updateAttemptsUI(){
+    document.getElementById("attempts").textContent = "المحاولات: " + attempts;
+  }
+
+  window.useAttempt = async () => {
+    if (attempts <= 0){
+      logout();
+      return;
+    }
+    attempts--;
+    updateAttemptsUI();
+    generateGrid();
+
+    await update(ref(db, "codes/" + currentCode), { remaining: attempts });
+
+    if (attempts <= 0){
+      setTimeout(()=> logout(), 800);
+    }
+  };
+
+  window.logout = () => {
+    document.getElementById("mainBox").classList.add("hidden");
+    document.getElementById("loginBox").classList.remove("hidden");
+    document.getElementById("grid").textContent = "";
+  };
+
+  function generateGrid(){
     const total = 25;
     const gemCount = Math.floor(Math.random()*2)+4;
     const arr = Array(total).fill(block);
@@ -175,7 +204,7 @@
       text += arr.slice(r*5,(r+1)*5).join(" ") + (r<4? "\n":"");
     }
     document.getElementById("grid").textContent = text;
-  };
+  }
 
   window.copyGrid = () => {
     const t = document.getElementById("grid").textContent.trim();
