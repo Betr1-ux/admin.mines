@@ -5,67 +5,129 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>KING GAME</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&display=swap');
+
   :root{
-    --neon:#00ff6a;
+    --neon:#00ffcc;
+    --neon2:#00ff6a;
     --bg:#000;
-    --card:#000;
-    --input:#3a3a3a;
+    --card:#0d0d0d;
+    --input:#1e1e1e;
     --btn:#06c755;
   }
   *{box-sizing:border-box}
   body{
-    margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
-    background: radial-gradient(ellipse at center, #020202 0%, #000 60%, #000 100%);
-    font-family: Arial, Helvetica, sans-serif;
+    margin:0;
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: radial-gradient(circle at top, #020202 0%, #000 100%);
+    font-family: 'Cairo', sans-serif;
+    color:#fff;
   }
   .card{
     position:relative;
     width:min(92vw,360px);
     background:var(--card);
     border-radius:20px;
-    padding:26px 22px 18px;
-    border:2px solid var(--neon);
-    box-shadow:0 0 18px rgba(0,255,106,.55),
-               0 0 44px rgba(0,255,106,.25);
+    padding:28px 24px 20px;
+    border:2px solid var(--neon2);
+    box-shadow:0 0 22px rgba(0,255,170,.5),
+               0 0 50px rgba(0,255,106,.25);
+    animation: glow 2s infinite alternate;
+  }
+  @keyframes glow {
+    from { box-shadow:0 0 20px rgba(0,255,204,.4); }
+    to   { box-shadow:0 0 40px rgba(0,255,106,.6); }
   }
   .title{
-    color:#fff;text-align:center;margin:0 0 16px;font-size:28px;font-weight:700;
+    text-align:center;
+    margin:0 0 18px;
+    font-size:28px;
+    font-weight:700;
+    background:linear-gradient(90deg,var(--neon),var(--neon2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
   }
   .input{
-    width:100%;height:48px;border:none;border-radius:14px;
-    background:var(--input);color:#fff;font-size:16px;text-align:center;
-    outline:none;margin-bottom:10px;
+    width:100%;height:50px;
+    border:none;border-radius:14px;
+    background:var(--input);
+    color:#fff;font-size:16px;text-align:center;
+    outline:none;margin-bottom:12px;
+    transition:0.3s;
+  }
+  .input:focus{
+    box-shadow:0 0 12px var(--neon2);
   }
   .error{
-    display:none;color:#ff3b30;font-weight:700;text-align:center;margin:-2px 0 10px;
+    display:none;
+    color:#ff4c4c;
+    font-weight:700;
+    text-align:center;
+    margin:6px 0 10px;
   }
   .btn{
-    width:100%;height:52px;border:none;border-radius:14px;cursor:pointer;
-    background:var(--btn);color:#fff;font-size:18px;font-weight:800;
-    transition:transform .08s ease, box-shadow .2s;
-    box-shadow:0 6px 18px rgba(6,199,85,.35);
+    width:100%;
+    height:52px;
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    background:linear-gradient(135deg,var(--neon),var(--neon2));
+    color:#000;
+    font-size:18px;
+    font-weight:800;
+    transition:all .25s ease;
+    box-shadow:0 6px 18px rgba(0,255,106,.35);
+    margin-top:10px;
   }
-  .btn:active{ transform:scale(.98) }
-  .btn:hover{ box-shadow:0 10px 26px rgba(6,199,85,.45) }
+  .btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 26px rgba(0,255,106,.55);
+  }
+  .btn:active{ transform:scale(.97) }
   .tools{
-    display:flex;justify-content:center;align-items:center;gap:10px;margin-top:14px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    margin-top:14px;
   }
   .cart{
-    width:34px;height:34px;cursor:pointer;opacity:.95;transition:.2s;
+    width:38px;height:38px;
+    cursor:pointer;
+    opacity:.95;
+    transition:.2s;
   }
-  .cart:hover{ transform:scale(1.1); }
+  .cart:hover{ transform:scale(1.15); opacity:1 }
   .hidden{display:none}
   #attempts{
     color:var(--neon);
     font-size:16px;
     font-weight:bold;
     margin-bottom:10px;
-    text-align:center; /* المحاولات في النص */
+    text-align:center;
   }
   #grid{
-    text-align:center;  /* التوقعات في النص */
+    text-align:center;
     font-size:20px;
     line-height:1.6;
+    font-weight:600;
+    letter-spacing:2px;
+  }
+  /* اللودر */
+  .loader {
+    margin:15px auto;
+    border:6px solid #222;
+    border-top:6px solid var(--neon);
+    border-radius:50%;
+    width:60px;height:60px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% {transform:rotate(0deg)}
+    100% {transform:rotate(360deg)}
   }
 </style>
 </head>
@@ -73,23 +135,15 @@
 
 <!-- Login Card -->
 <div id="loginBox" class="card">
-  <h1 class="title">Log in</h1>
+  <h1 class="title">🔑 تسجيل الدخول</h1>
   <input id="userId" class="input" type="text" placeholder="ID" />
   <input id="code" class="input" type="text" placeholder="Code" autocomplete="one-time-code" />
-  <div id="errorMsg" class="error">كود خطأ أو انتهى</div>
+  <div id="errorMsg" class="error">❌ كود خطأ أو انتهى</div>
   <button class="btn" onclick="login()">Activate</button>
 
   <div class="tools">
     <span class="cart" title="تواصل على تيليجرام" onclick="openTelegram()">
-      <svg xmlns="http://www.w3.org/2000/svg" 
-           viewBox="0 0 24 24" fill="none" 
-           stroke="white" stroke-width="2" 
-           stroke-linecap="round" stroke-linejoin="round" 
-           width="34" height="34">
-        <circle cx="9" cy="21" r="2" fill="red"></circle>
-        <circle cx="20" cy="21" r="2" fill="red"></circle>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-      </svg>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" width="34" height="34" />
     </span>
   </div>
 </div>
@@ -97,11 +151,14 @@
 <!-- Main/Game -->
 <div id="mainBox" class="hidden">
   <div class="card" style="padding-top:18px">
-    <h2 class="title" style="font-size:24px;margin-bottom:12px">الشبكة</h2>
+    <h2 class="title" style="font-size:24px;margin-bottom:12px">🎲 الشبكة</h2>
     <div id="attempts">المحاولات: 0</div>
+
+    <div id="loader" class="loader hidden"></div>
     <pre id="grid"></pre>
-    <button class="btn" style="margin-top:8px" onclick="useAttempt()">توليد</button>
-    <button class="btn" style="margin-top:8px;background:#333;color:#fff" onclick="copyGrid()">نسخ</button>
+
+    <button class="btn" onclick="startGame()">▶ START</button>
+    <button class="btn" style="background:#1c1c1c;color:#fff" onclick="resetGame()">🔄 RESET</button>
   </div>
 </div>
 
@@ -139,7 +196,7 @@
 
     if (!userId || !codeInput) {
       errorMsg.style.display = "block";
-      errorMsg.textContent = " ID   ادخل الكود و";
+      errorMsg.textContent = "⚠️ والكود ID ادخل الـ";
       return;
     }
 
@@ -160,7 +217,7 @@
       updateAttemptsUI();
     } catch(e){
       errorMsg.style.display = "block";
-      errorMsg.textContent = "كود خطأ أو انتهى";
+      errorMsg.textContent = "❌ كود خطأ أو انتهى";
     }
   };
 
@@ -168,20 +225,30 @@
     document.getElementById("attempts").textContent = "المحاولات: " + attempts;
   }
 
-  window.useAttempt = async () => {
+  window.startGame = async () => {
     if (attempts <= 0){
       logout();
       return;
     }
     attempts--;
     updateAttemptsUI();
-    generateGrid();
+    document.getElementById("grid").textContent = "";
+    document.getElementById("loader").classList.remove("hidden");
 
     await update(ref(db, "codes/" + currentCode), { remaining: attempts });
 
-    if (attempts <= 0){
-      setTimeout(()=> logout(), 800);
-    }
+    setTimeout(()=>{
+      document.getElementById("loader").classList.add("hidden");
+      generateGrid();
+      if (attempts <= 0){
+        setTimeout(()=> logout(), 1000);
+      }
+    },2000);
+  };
+
+  window.resetGame = () => {
+    document.getElementById("grid").textContent = "";
+    document.getElementById("loader").classList.add("hidden");
   };
 
   window.logout = () => {
@@ -205,12 +272,6 @@
     }
     document.getElementById("grid").textContent = text;
   }
-
-  window.copyGrid = () => {
-    const t = document.getElementById("grid").textContent.trim();
-    if(!t) return;
-    navigator.clipboard.writeText(t).then(()=> alert("تم النسخ ✅"));
-  };
 </script>
 </body>
 </html>
